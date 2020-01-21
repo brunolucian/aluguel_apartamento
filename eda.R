@@ -18,8 +18,6 @@ url_teste <- lista_urls[1]
 mycurl <- curl(url_teste, handle = curl::new_handle("useragent" = "Mozilla/5.0"))
 mycurl <- read_html(mycurl)
 
-x <- mycurl %>% html_nodes(".OLXad-list-link")
-
 x <- mycurl %>% 
   html_nodes(".section_OLXad-list") %>% 
   html_nodes(".item:not(.list_native)") 
@@ -63,7 +61,7 @@ bairros %<>% str_trim()
 col_bairros <- bairros
 # extrair informações adicionais de apartamento
 
-adicional <- mycurl %>% html_nodes(".mb5px") %>% html_text()
+adicional <- mycurl %>% html_nodes(".detail-specific") %>% html_text()
 adicional %<>% str_replace_all("[\t]", "")
 adicional %<>% str_replace_all("[\n]", "")
 col_adicionais <- adicional

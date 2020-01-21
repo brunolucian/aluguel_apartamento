@@ -6,21 +6,40 @@ extrairAnuncios <- function(url_pagina, info_adicional) {
   mycurl <- curl(url_pagina, handle = curl::new_handle("useragent" = "Mozilla/5.0"))
   mycurl <- read_html(mycurl)
   
-  x <- mycurl %>% html_nodes(".OLXad-list-link")
+  x <- mycurl %>% 
+    html_nodes(".section_OLXad-list") %>% 
+    html_nodes(".item:not(.list_native)") 
   
   # extrair link do anuncio
-  col_links <- mycurl %>% html_nodes(".OLXad-list-link") %>% html_attr("href")
+  
+  col_links <- mycurl %>% 
+    html_nodes(".section_OLXad-list") %>% 
+    html_nodes(".item:not(.list_native)") %>% 
+    html_nodes("a") %>% 
+    html_attr("href")
+  
+  # col_links <- mycurl %>% html_nodes(".OLXad-list-link") %>% html_attr("href")
   # extrair titulo do anuncio
-  col_titles <- mycurl %>% html_nodes(".OLXad-list-link") %>% html_attr("title")
+  col_titles <- mycurl %>% 
+    html_nodes(".section_OLXad-list") %>% 
+    html_nodes(".item:not(.list_native)") %>% 
+    html_nodes("a") %>% 
+    html_attr("title")
+  
   # extrair preço
   precos <- lapply(x, . %>% html_nodes(".col-3"))
+  precos <- lapply(x, . %>% html_nodes(".OLXad-list-price"))
+  
   precos %<>% lapply(html_text)
+  precos[precos == "character(0)"] = 0
   precos %<>% unlist()
+  precos %<>% str_squish() 
   # precos %<>% limparString()
   # precos %<>% as.numeric()
   col_precos <- precos
   # extrair bairros
   bairros <- mycurl %>% html_nodes(".OLXad-list-line-2") %>% html_text()
+  bairros <- mycurl %>% html_nodes(".detail-region") %>% html_text()
   bairros %<>% str_replace_all("[\t]", "")
   bairros %<>% str_replace_all("[\n]", "")
   bairros %<>% str_replace_all("Apartamentos", "")
@@ -32,7 +51,7 @@ extrairAnuncios <- function(url_pagina, info_adicional) {
   # extrair informações adicionais de apartamento
   
   if (info_adicional) {
-    adicional <- mycurl %>% html_nodes(".mt5px") %>% html_text()
+    adicional <- mycurl %>% html_nodes(".detail-specific") %>% html_text()
     adicional %<>% str_replace_all("[\t]", "")
     adicional %<>% str_replace_all("[\n]", "")
     col_adicionais <- adicional

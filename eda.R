@@ -1,3 +1,4 @@
+
 library(magrittr) # não vivo sem esse pacote
 library(rvest) # principal pacote para web-scraping
 library(readr) # usado para extrair numeros de texto
@@ -43,6 +44,7 @@ precos <- lapply(x, . %>% html_nodes(".col-3"))
 precos <- lapply(x, . %>% html_nodes(".OLXad-list-price"))
 
 precos %<>% lapply(html_text)
+precos[precos == "character(0)"] = 0
 precos %<>% unlist()
 precos %<>% str_squish() 
 # precos %<>% limparString()
